@@ -53,48 +53,49 @@ module.exports = {
       });
 
       config.resolve.plugins = config.resolve.plugins.filter(
-        (plugin) => !(plugin instanceof ModuleScopePlugin)
+        (plugin) =>
+          !(plugin instanceof ModuleScopePlugin) && plugin.constructor.name !== 'ModuleScopePlugin'
       );
 
       config.output.publicPath = isEnvProduction ? '/#{ROUTE_PREFIX}' : '/';
-      // config.plugins = config.plugins.map((plugin) => {
-      //   if (!(plugin instanceof HtmlWebpackPlugin)) {
-      //     return plugin;
-      //   }
+      config.plugins = config.plugins.map((plugin) => {
+        if (!(plugin instanceof HtmlWebpackPlugin)) {
+          return plugin;
+        }
 
-      //   return new HtmlWebpackPlugin(
-      //     Object.assign(
-      //       {},
-      //       {
-      //         inject: true,
-      //         template: resolvePath(
-      //           'public/index.pug?' +
-      //             JSON.stringify({ ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '' })
-      //         ),
-      //         // templateParameters: {
-      //         //   ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '',
-      //         // },
-      //         filename: 'index.html',
-      //       },
-      //       isEnvProduction
-      //         ? {
-      //             minify: {
-      //               removeComments: false,
-      //               collapseWhitespace: true,
-      //               removeRedundantAttributes: true,
-      //               useShortDoctype: true,
-      //               removeEmptyAttributes: true,
-      //               removeStyleLinkTypeAttributes: true,
-      //               keepClosingSlash: true,
-      //               minifyJS: true,
-      //               minifyCSS: true,
-      //               minifyURLs: true,
-      //             },
-      //           }
-      //         : undefined
-      //     )
-      //   );
-      // });
+        return new HtmlWebpackPlugin(
+          Object.assign(
+            {},
+            {
+              inject: true,
+              template: resolvePath(
+                'public/index.pug?' +
+                  JSON.stringify({ ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '' })
+              ),
+              // templateParameters: {
+              //   ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '',
+              // },
+              filename: 'index.html',
+            },
+            isEnvProduction
+              ? {
+                  minify: {
+                    removeComments: false,
+                    collapseWhitespace: true,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    keepClosingSlash: true,
+                    minifyJS: true,
+                    minifyCSS: true,
+                    minifyURLs: true,
+                  },
+                }
+              : undefined
+          )
+        );
+      });
 
       return config;
     },

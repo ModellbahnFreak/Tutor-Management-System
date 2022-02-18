@@ -28,7 +28,7 @@
     "i18next": "^19.8.3",
     "i18next-sync-fs-backend": "^1.1.1",
     "i18next-xhr-backend": "^3.2.2",
-    "mdi-material-ui": "^6.21.0",
+    "mdi-material-ui": "^7.1.0",
     "notistack": "^1.0.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -62,7 +62,9 @@
     "core-js": "^3.8.3",
     "craco-alias": "^3.0.1",
     "html-loader": "^3.1.0",
+    "html-webpack-plugin": "^5.5.0",
     "http-proxy": "^1.18.1",
+    "react-dev-utils": "^12.0.0",
     "react-scripts": "5.0.0",
     "react-transition-group": "^4.4.2",
     "regenerator-runtime": "^0.13.7"
