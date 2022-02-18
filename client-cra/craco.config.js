@@ -72,9 +72,6 @@ module.exports = {
                 'public/index.pug?' +
                   JSON.stringify({ ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '' })
               ),
-              // templateParameters: {
-              //   ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '',
-              // },
               filename: 'index.html',
             },
             isEnvProduction
