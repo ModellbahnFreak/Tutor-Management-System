@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const CracoAlias = require('craco-alias');
-const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const path = require('path');
 const fs = require('fs');
@@ -51,41 +49,6 @@ module.exports = {
       );
 
       config.output.publicPath = isEnvProduction ? '/#{ROUTE_PREFIX}' : '/';
-
-      config.plugins = config.plugins.map((plugin) => {
-        if (plugin.constructor.name !== 'HtmlWebpackPlugin') {
-          return plugin;
-        }
-
-        return new HtmlWebpackPlugin(
-          Object.assign(
-            {},
-            {
-              inject: true,
-              template: '!!simple-pug-loader!public/index.pug',
-              templateParameters: {
-                ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '',
-              },
-            },
-            isEnvProduction
-              ? {
-                  minify: {
-                    removeComments: false,
-                    collapseWhitespace: true,
-                    removeRedundantAttributes: true,
-                    useShortDoctype: true,
-                    removeEmptyAttributes: true,
-                    removeStyleLinkTypeAttributes: true,
-                    keepClosingSlash: true,
-                    minifyJS: true,
-                    minifyCSS: true,
-                    minifyURLs: true,
-                  },
-                }
-              : undefined
-          )
-        );
-      });
 
       return config;
     },
