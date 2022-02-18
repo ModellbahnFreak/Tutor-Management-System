@@ -57,19 +57,20 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/react-window": "^1.8.2",
     "@types/yup": "^0.29.11",
-    "@webdiscus/pug-loader": "^1.7.1",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",
     "chai": "^4.2.0",
     "core-js": "^3.8.3",
     "craco-alias": "^3.0.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "html-loader": "^3.1.0",
     "html-webpack-plugin": "^5.5.0",
     "http-proxy": "^1.18.1",
     "react-dev-utils": "^12.0.0",
     "react-scripts": "5.0.0",
     "react-transition-group": "^4.4.2",
-    "regenerator-runtime": "^0.13.7"
+    "regenerator-runtime": "^0.13.7",
+    "simple-pug-loader": "^0.2.1"
   },
   "browserslist": {
     "production": [

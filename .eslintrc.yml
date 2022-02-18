@@ -4,12 +4,9 @@ root: true
 parser: '@typescript-eslint/parser' # Specifies the ESLint parser
 
 plugins:
-    - 'react'
     - 'import'
 
 extends:
-    - 'plugin:react/recommended' # Uses the recommended rules from @eslint-plugin-react
-    - 'plugin:react-hooks/recommended'
     - 'plugin:@typescript-eslint/recommended' # Uses the recommended rules from the @typescript-eslint/eslint-plugin
     - 'plugin:import/typescript'
     - 'prettier/@typescript-eslint' # Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
@@ -61,11 +58,6 @@ rules:
     'import/no-unused-modules':
         - 'off'
         - unusedExports: true
-    'react/display-name': 'off'
-    'react/jsx-no-duplicate-props':
-        - 'warn'
-        - ignoreCase: false
-    'react/prop-types': [0]
     'prettier/prettier': 'warn'
 
 settings:

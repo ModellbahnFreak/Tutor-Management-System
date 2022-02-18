@@ -46,20 +46,14 @@ module.exports = {
         }
       });
 
-      config.module.rules.push({
-        test: /\.pug$/,
-        loader: '@webdiscus/pug-loader',
-        options: { method: 'html' },
-      });
-
       config.resolve.plugins = config.resolve.plugins.filter(
-        (plugin) =>
-          !(plugin instanceof ModuleScopePlugin) && plugin.constructor.name !== 'ModuleScopePlugin'
+        (plugin) => plugin.constructor.name !== 'ModuleScopePlugin'
       );
 
       config.output.publicPath = isEnvProduction ? '/#{ROUTE_PREFIX}' : '/';
+
       config.plugins = config.plugins.map((plugin) => {
-        if (!(plugin instanceof HtmlWebpackPlugin)) {
+        if (plugin.constructor.name !== 'HtmlWebpackPlugin') {
           return plugin;
         }
 
@@ -68,11 +62,10 @@ module.exports = {
             {},
             {
               inject: true,
-              template: resolvePath(
-                'public/index.pug?' +
-                  JSON.stringify({ ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '' })
-              ),
-              filename: 'index.html',
+              template: '!!simple-pug-loader!public/index.pug',
+              templateParameters: {
+                ROUTE_PREFIX: isEnvProduction ? '/#{ROUTE_PREFIX}' : '',
+              },
             },
             isEnvProduction
               ? {
