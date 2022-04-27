@@ -98,5 +98,8 @@ export async function bootstrap(): Promise<void> {
     initSecurityMiddleware(app);
     initSwagger(app, settings.getAPIPrefix());
 
+    // Listen for SIGTERM etc. to shut down all chrome instances spawned before exiting
+    app.enableShutdownHooks();
+
     await app.listen(8080);
 }

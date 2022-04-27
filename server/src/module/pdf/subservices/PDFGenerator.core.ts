@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, OnModuleDestroy } from '@nestjs/common';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
 import { StaticSettings } from '../../settings/settings.static';
@@ -6,7 +6,16 @@ import { StaticSettings } from '../../settings/settings.static';
 /**
  * @param T Type of the options passed to `generatePDF`.
  */
-export abstract class PDFGenerator<T = Record<string, unknown>> {
+export abstract class PDFGenerator<T = Record<string, unknown>> implements OnModuleDestroy {
+    /**
+     * Reference to the running instance of chrome/chromium used to generate PDFs or `null` of none stated yet
+     *
+     * Only one instance will be started to avoid a huge amount of processes
+     * and to mitigate the bug that in a docker container every chrome instance
+     * might/will leave multiple zombie processes behind.
+     */
+    private static browser: puppeteer.Browser | null = null;
+
     private readonly logger = new Logger(PDFGenerator.name);
     /**
      * Generates a PDF from the given options.
@@ -26,21 +35,24 @@ export abstract class PDFGenerator<T = Record<string, unknown>> {
      */
     protected async generatePDFFromBodyContent(body: string): Promise<Buffer> {
         const html = await this.putBodyInHTML(body);
-        let browser: puppeteer.Browser | undefined;
 
         this.logger.debug('Starting browser...');
         this.logger.debug(`\tExec path: ${process.env.TMS_PUPPETEER_EXEC_PATH}`);
 
         try {
-            browser = await puppeteer.launch({
-                args: ['--disable-dev-shm-usage'],
-                executablePath: process.env.TMS_PUPPETEER_EXEC_PATH,
-                timeout: StaticSettings.getService().getPuppeteerConfiguration()?.timeout,
-            });
+            if (!PDFGenerator.browser?.isConnected()) {
+                PDFGenerator.browser = await puppeteer.launch({
+                    args: ['--disable-dev-shm-usage', '--single-process'],
+                    executablePath: process.env.TMS_PUPPETEER_EXEC_PATH,
+                    timeout: StaticSettings.getService().getPuppeteerConfiguration()?.timeout,
+                });
 
-            this.logger.debug('Browser started.');
+                this.logger.debug('New browser started.');
+            } else {
+                this.logger.debug('Existing browser reused.');
+            }
 
-            const page = await browser.newPage();
+            const page = await PDFGenerator.browser.newPage();
             this.logger.debug('Page created.');
 
             await page.setContent(html, { waitUntil: 'domcontentloaded' });
@@ -60,14 +72,19 @@ export abstract class PDFGenerator<T = Record<string, unknown>> {
 
             this.logger.debug('PDF created.');
 
-            await browser.close();
+            page.close();
 
-            this.logger.debug('Browser closed');
+            this.logger.debug('Page closed.');
+
+            //await browser.close();
+
+            //this.logger.debug('Browser closed');
 
             return buffer;
         } catch (err) {
-            if (browser) {
-                browser.close();
+            if (PDFGenerator.browser) {
+                PDFGenerator.browser.close();
+                PDFGenerator.browser = null;
             }
 
             Logger.error(JSON.stringify(err, null, 2));
@@ -130,5 +147,25 @@ export abstract class PDFGenerator<T = Record<string, unknown>> {
      */
     private static getCustomCSS(): string {
         return '.markdown-body table { display: table; width: 100%; }';
+    }
+
+    /**
+     * Closes (if existing) the running browser instance before the application exits.
+     *
+     * Errors during the closure will be ignored as it means, the browser (or the connecton) have already been closed
+     */
+    public onModuleDestroy(): void {
+        if (PDFGenerator.browser != null) {
+            try {
+                PDFGenerator.browser.close();
+                PDFGenerator.browser = null;
+                this.logger.debug('Closed running browser instance');
+            } catch (err) {
+                if (this.logger) {
+                    this.logger.debug("Couldn't close browser. Likely it has already been closed");
+                    this.logger.debug(JSON.stringify(err, null, 2));
+                }
+            }
+        }
     }
 }
